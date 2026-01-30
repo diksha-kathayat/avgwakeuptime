@@ -43,24 +43,42 @@
         function calcTime(data) {
             const entries = data.split(',').map(l => l.trim().match(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]/)?.[0]).filter(Boolean);
             if (entries.length === 0) return;
+
             let sinSum = 0, cosSum = 0;
             entries.forEach(time => {
                 const [h, m] = time.split(':').map(Number);
                 const angle = ((h * 60 + m) / 1440) * 2 * Math.PI;
                 sinSum += Math.sin(angle); cosSum += Math.cos(angle);
             });
+
             const avgAngle = Math.atan2(sinSum, cosSum);
             let avgMins = (avgAngle * 1440) / (2 * Math.PI);
             if (avgMins < 0) avgMins += 1440;
+
             const finalMins = Math.round(avgMins) % 1440;
-            const h = Math.floor(finalMins / 60), m = finalMins % 60;
-            document.getElementById('wake-res').innerText = String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0');
+            let h = Math.floor(finalMins / 60);
+            const m = finalMins % 60;
+
+            // --- 12-hour Format Conversion ---
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            let h12 = h % 12;
+            h12 = h12 ? h12 : 12; // Converts 0 to 12 for Midnight
+
+            const displayTime = h12 + ":" + String(m).padStart(2, '0') + " " + ampm;
+
+            document.getElementById('wake-res').innerText = displayTime;
             document.getElementById('wake-cnt').innerText = entries.length;
         }
+
         function copyToClipboard(id, btn) {
             const val = document.getElementById(id).innerText;
-            if (val !== "--:--") { navigator.clipboard.writeText(val); btn.innerHTML = '<i class="fa-solid fa-check text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 2000); }
+            if (val !== "--:--") {
+                navigator.clipboard.writeText(val);
+                btn.innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
+                setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 2000);
+            }
         }
+
         const params = new URLSearchParams(window.location.search);
         if (params.has('wakeTimes')) calcTime(params.get('wakeTimes'));
     </script>
