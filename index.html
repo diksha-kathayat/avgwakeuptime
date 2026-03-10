@@ -37,7 +37,6 @@
                 <i class="fa-regular fa-copy"></i>
             </button>
         </div>
-        <p class="text-[10px] text-slate-400 mt-1">Based on <span id="wake-cnt">0</span> days</p>
     </div>
     <script>
         function calcTime(data) {
@@ -59,15 +58,14 @@
             let h = Math.floor(finalMins / 60);
             const m = finalMins % 60;
 
-            // --- 12-hour Format Conversion ---
             const ampm = h >= 12 ? 'PM' : 'AM';
             let h12 = h % 12;
-            h12 = h12 ? h12 : 12; // Converts 0 to 12 for Midnight
+            h12 = h12 ? h12 : 12;
 
             const displayTime = h12 + ":" + String(m).padStart(2, '0') + " " + ampm;
 
             document.getElementById('wake-res').innerText = displayTime;
-            document.getElementById('wake-cnt').innerText = entries.length;
+            // Removed the line that updated 'wake-cnt'
         }
 
         function copyToClipboard(id, btn) {
